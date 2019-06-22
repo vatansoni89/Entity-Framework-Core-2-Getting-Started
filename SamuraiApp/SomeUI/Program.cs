@@ -40,7 +40,35 @@ namespace SomeUI
 
             //ProjectSamuraisWithQuotesHavingInternalFilter();
 
-            FilteringWithRelatedData();
+            //FilteringWithRelatedData();
+
+            //-----Modifying Related Data------
+            //ModifyingRelatedDataWhenTracked();
+            ModifyingRelatedDataWhenNotTracked();
+        }
+
+        /// <summary>
+        /// Use Entry() over Update() as it only update the required data.
+        /// Update() actually updates all data to the DB even if not required.
+        /// </summary>
+        private static void ModifyingRelatedDataWhenNotTracked()
+        {
+            var samurai = Context.Samurais.Include(s => s.Quotes).FirstOrDefault();
+            var quote = samurai.Quotes[0];
+            quote.Text += " --->I M new Text";
+
+            using (var newContext = new SamuraiContext())
+            {
+                newContext.Entry(quote).State = EntityState.Modified;
+                newContext.SaveChanges();
+            }
+        }
+
+        private static void ModifyingRelatedDataWhenTracked()
+        {
+            var samurai = Context.Samurais.Include(s => s.Quotes).FirstOrDefault();
+            Context.Quotes.Remove(samurai.Quotes[0]);
+            Context.SaveChanges();
         }
 
         private static void FilteringWithRelatedData()
