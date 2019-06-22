@@ -30,7 +30,22 @@ namespace SomeUI
 
             //AddChildToExistingObjectWhileNotTracked(1);
 
-            EagerLoadSamuraiWithQuotes();
+            //EagerLoadSamuraiWithQuotes();
+
+            ProjectSomeProperties();
+
+            var dynamicList = ProjectDynamic();
+        }
+
+        private static List<dynamic> ProjectDynamic()
+        {
+            var someProp = Context.Samurais.Select(s => new { s.Id, s.Name }).ToList();
+            return someProp.ToList<dynamic>();
+        }
+
+        private static void ProjectSomeProperties()
+        {
+            var someProp = Context.Samurais.Select(s => new { s.Id, s.Name }).ToList();
         }
 
         //using Microsoft.EntityFrameworkCore; for Include
