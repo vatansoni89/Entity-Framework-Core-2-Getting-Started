@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using SamuraiApp.Data;
 using SamuraiApp.Domain;
 
+//Imp.1: Include method always loads the entire set of related objects (full graph, not just req. properties)
+
 namespace SomeUI
 {
     class Program
