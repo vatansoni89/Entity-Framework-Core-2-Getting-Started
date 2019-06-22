@@ -36,9 +36,19 @@ namespace SomeUI
 
             //var dynamicList = ProjectDynamic();
 
-            ProjectSamuraisWithQuotes();
+            //ProjectSamuraisWithQuotes();
 
-            ProjectSamuraisWithQuotesHavingInternalFilter();
+            //ProjectSamuraisWithQuotesHavingInternalFilter();
+
+            FilteringWithRelatedData();
+        }
+
+        private static void FilteringWithRelatedData()
+        {
+            //Filter only Samurai whose quote have word 'Happy' ,to have Quots also use Include()
+            var samurais = Context.Samurais
+                                  .Where(s => s.Quotes.Any(q => q.Text.Contains("happy")))
+                                  .ToList();
         }
 
         private static void ProjectSamuraisWithQuotes()
