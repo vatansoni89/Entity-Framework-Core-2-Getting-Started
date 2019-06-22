@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SamuraiApp.Data;
 using SamuraiApp.Domain;
 
@@ -27,7 +28,18 @@ namespace SomeUI
 
             //InsertNewPkFkgraph();
 
-            AddChildToExistingObjectWhileNotTracked(1);
+            //AddChildToExistingObjectWhileNotTracked(1);
+
+            EagerLoadSamuraiWithQuotes();
+        }
+
+        //using Microsoft.EntityFrameworkCore; for Include
+        /// <summary>
+        /// Refer "Slides by julia\querying-and-saving-related-data-slides.pdf"
+        /// </summary>
+        private static void EagerLoadSamuraiWithQuotes()
+        {
+            var samuraies = Context.Samurais.Include(s => s.Quotes).ToList();
         }
 
         //Adding Quote in disconnected scenario 
