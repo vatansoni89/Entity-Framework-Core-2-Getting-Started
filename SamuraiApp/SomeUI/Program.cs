@@ -15,13 +15,48 @@ namespace SomeUI
         static void Main(string[] args)
         {
             //InsertSamurai();
-           // InsertMultipleSamurai();
+            // InsertMultipleSamurai();
 
-           // InsertSumuraiAndBattleAtOneShot();
+            // InsertSumuraiAndBattleAtOneShot();
 
-           // QueryAndUpdateBattle_Disconnected();
+            // QueryAndUpdateBattle_Disconnected();
 
-           // DeletemanySamurai();
+            // DeletemanySamurai();
+
+            //InsertNewPkFkgraph();
+
+            AddChildToExistingObjectWhileNotTracked(1);
+        }
+
+        //Adding Quote in disconnected scenario 
+        /// <summary>
+        /// we must take care of 'Foreign Keys', here we used SamuraiId for adding Quote to Samurai using FK.
+        /// </summary>
+        /// <param name="samuId"></param>
+        private static void AddChildToExistingObjectWhileNotTracked(int samuId)
+        {
+            var quote = new Quote {
+                Text = "added quote by AddChildToExistingObjectWhileNotTracked",
+                SamuraiId = samuId
+            };
+
+            using (var context = new SamuraiContext())
+            {
+                context.Quotes.Add(quote);
+                context.SaveChanges();
+            }
+        }
+
+        private static void InsertNewPkFkgraph()
+        {
+            var samurai = new Samurai {
+                                        Name = "Pk1", Quotes = new List<Quote>()
+                                        { new Quote {Text = "quote1 of Pk1" },
+                                          new Quote{Text = "quote1 of Pk2" }  }
+                                       };
+
+            Context.Samurais.Add(samurai);
+            Context.SaveChanges();
         }
 
         private static void DeletemanySamurai()
