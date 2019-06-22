@@ -32,9 +32,27 @@ namespace SomeUI
 
             //EagerLoadSamuraiWithQuotes();
 
-            ProjectSomeProperties();
+            //ProjectSomeProperties();
 
-            var dynamicList = ProjectDynamic();
+            //var dynamicList = ProjectDynamic();
+
+            ProjectSamuraisWithQuotes();
+
+            ProjectSamuraisWithQuotesHavingInternalFilter();
+        }
+
+        private static void ProjectSamuraisWithQuotes()
+        {
+            var samuWithQuotes = Context.Samurais
+                .Select(s => new { Samurai = s, Quotes = s.Quotes, count = s.Quotes.Count }).ToList();
+        }
+
+        private static void ProjectSamuraisWithQuotesHavingInternalFilter()
+        {
+            
+            var happySamu = Context.Samurais
+                .Select(s => new { Samurai = s, HappyQuotes = s.Quotes.Where(q => q.Text.Contains("Happy")), count = s.Quotes.Count })
+                .ToList();
         }
 
         private static List<dynamic> ProjectDynamic()
@@ -68,10 +86,15 @@ namespace SomeUI
                 Text = "added quote by AddChildToExistingObjectWhileNotTracked",
                 SamuraiId = samuId
             };
+            var quote1 = new Quote
+            {
+                Text = "happy",
+                SamuraiId = samuId
+            };
 
             using (var context = new SamuraiContext())
             {
-                context.Quotes.Add(quote);
+                context.Quotes.AddRange(quote, quote1);
                 context.SaveChanges();
             }
         }
@@ -81,7 +104,7 @@ namespace SomeUI
             var samurai = new Samurai {
                                         Name = "Pk1", Quotes = new List<Quote>()
                                         { new Quote {Text = "quote1 of Pk1" },
-                                          new Quote{Text = "quote1 of Pk2" }  }
+                                          new Quote{Text = "quote2 of Pk1" }  }
                                        };
 
             Context.Samurais.Add(samurai);
