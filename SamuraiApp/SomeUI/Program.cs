@@ -55,8 +55,78 @@ namespace SomeUI
 
             //EnlistSamuraiIntoABattleUntracked();
 
-            AddNewSamuraiViaDisconnectedBattleObject();
+            //AddNewSamuraiViaDisconnectedBattleObject();
+
+            //GetSamuraiWithBattles();
+
+            //RemoveBattleFromSamurai();
+
+            RemoveBattleFromSamuraiWhenDisconnected();
         }
+
+        /// <summary>
+        /// Remove join between Samurai and battle (by using Ids) in disconnected mode.
+        /// </summary>
+        private static void RemoveBattleFromSamuraiWhenDisconnected()
+        {
+            Samurai samurai;
+            using (var separateOperation = new SamuraiContext())
+            {
+                samurai = separateOperation.Samurais.Include(s => s.SamuraiBattle)
+                    .ThenInclude(sb => sb.Battle)
+                    .SingleOrDefault(s => s.Id == 2);
+            }
+
+            var sbToRemove = samurai.SamuraiBattle.SingleOrDefault(sb => sb.BattleId == 1);
+            samurai.SamuraiBattle.Remove(sbToRemove);
+
+            //_context.Attach(samurai);
+            //_context.ChangeTracker.DetectChanges(); //for debugging info _context.ChangeTracker.Entries()
+
+            _context.Remove(sbToRemove);
+            _context.ChangeTracker.DetectChanges();
+            _context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Remove join between Samurai and battle (by using Ids) in connected mode.
+        /// </summary>
+        private static void RemoveBattleFromSamurai()
+        {
+            //Remove join btw Samurai(Id =1) and  Battle (Id = 3)
+            var samurai = _context.Samurais.Include(s => s.SamuraiBattle)
+                .ThenInclude(sb => sb.Battle)
+                .SingleOrDefault(s => s.Id == 1);
+
+            var sbToRemove = samurai.SamuraiBattle.SingleOrDefault(sb=>sb.BattleId ==3);
+            samurai.SamuraiBattle.Remove(sbToRemove); //Ef core knows this need to removed frm DB.
+
+            _context.ChangeTracker.DetectChanges(); //for debugging info _context.ChangeTracker.Entries()
+            _context.SaveChanges();
+        }
+
+        /// <summary>
+        /// If we want to retrive a Samurai and all of the battle Samurai has fought in, 
+        /// we would query the Samurai, and then Include the SamuraiBattle attached to the Samurai 
+        /// and then Include the Battle that's attached to each one of those SamuraiBattles.
+        /// Samurai <Include> SamuraiBattle <ThenInclude> Battle
+        /// Note: sb.Battle will not come with intellisence, VS 2017 issue.
+        /// </summary>
+        private static void GetSamuraiWithBattles()
+        {
+            var samuraiWithBattle = _context.Samurais.Include(s => s.SamuraiBattle)
+                .ThenInclude(sb => sb.Battle).FirstOrDefault();
+
+            var battle = samuraiWithBattle.SamuraiBattle.First().Battle;
+
+            var allTheBattles = new List<Battle>();
+            foreach (var samuraiBattle in samuraiWithBattle.SamuraiBattle)
+            {
+                allTheBattles.Add(samuraiBattle.Battle);
+            }
+
+        }
+
 
         /// <summary>
         /// Adding Many-to-many Ends on the Fly. 
