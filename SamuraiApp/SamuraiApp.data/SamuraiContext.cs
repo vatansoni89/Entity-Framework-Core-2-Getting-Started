@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging;
 
 namespace SamuraiApp.Data
-{
+{//
     public class SamuraiContext:DbContext 
     {
         //Logging the linq generated sql
