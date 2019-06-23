@@ -32,6 +32,10 @@ namespace SamuraiApp.Data
                  "Server = (localdb)\\mssqllocaldb; Database = SamuraiAppData; Trusted_Connection = True; ");
         }
 
+        /// <summary>
+        /// SamuraiBattle has defined its own composit key { s.SamuraiId, s.BattleId }, so we can link Samurai and attle multiple times. 
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SamuraiBattle>()

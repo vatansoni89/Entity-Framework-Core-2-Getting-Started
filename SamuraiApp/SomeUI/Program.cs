@@ -14,6 +14,7 @@ namespace SomeUI
     class Program
     {
         public static SamuraiContext Context { get; set; } = new SamuraiContext();
+        public static SamuraiContext _context { get; set; } = new SamuraiContext();
 
         static void Main(string[] args)
         {
@@ -44,7 +45,105 @@ namespace SomeUI
 
             //-----Modifying Related Data------
             //ModifyingRelatedDataWhenTracked();
-            ModifyingRelatedDataWhenNotTracked();
+            //ModifyingRelatedDataWhenNotTracked();
+
+            //-----------EF Core 2 Mappings-----------
+            //PrePopulateSamuraisAndBattles();
+            //JoinBattleAndSamurai();
+
+            //EnlistSamuraiIntoABattle();
+
+            //EnlistSamuraiIntoABattleUntracked();
+
+            AddNewSamuraiViaDisconnectedBattleObject();
+        }
+
+        /// <summary>
+        /// Adding Many-to-many Ends on the Fly. 
+        /// Add new Samurai to existing battle with many-to-many relationship.
+        /// </summary>
+        private static void AddNewSamuraiViaDisconnectedBattleObject()
+        {
+            Battle battle;
+            using (var separateOperation = new SamuraiContext())
+            {
+                battle = separateOperation.Battles.Find(1);
+            }
+            var newSamurai = new Samurai { Name = "SampsonSan" };
+            battle.SamuraiBattle.Add(new SamuraiBattle { Samurai = newSamurai});
+            _context.Battles.Attach(battle);
+            _context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Here we use 'Attach(obj)' method instead of Add() bcz in disconnected scenario, 
+        /// it will add both Battle and SamuraiBattle as its not tracking them. 
+        /// Attach() will only add the obj which don't have key value (i.e. Id).
+        /// </summary>
+        private static void EnlistSamuraiIntoABattleUntracked()
+        {
+            Battle battle;
+            using (var separateOperation = new SamuraiContext())
+            {
+                battle = separateOperation.Battles.Find(1);
+            }
+            battle.SamuraiBattle.Add(new SamuraiBattle { SamuraiId = 9});
+            _context.Battles.Attach(battle);
+            //_context.Battles.Add(battle);
+
+            /* _context.ChangeTracker.Entries() > ResultView > check the Entity and State props.. */
+            _context.ChangeTracker.DetectChanges(); //to show debugging info
+            _context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Here context smartly figureout, the BattleId need to be taken from battle object and 
+        /// SamuraiId from the SamuraiBattle object
+        /// 
+        /// </summary>
+        private static void EnlistSamuraiIntoABattle()
+        {
+            var battle = _context.Battles.Find(1);
+
+            battle.SamuraiBattle.Add(new SamuraiBattle { SamuraiId = 2 });
+            _context.SaveChanges();
+        }
+
+        /// <summary>
+        /// We don't have SamuraiBattle dbset but that is well connected by FK. So _context will figureout 
+        /// how to save that as we can perform db operations(add, update, remove etc.) directly on DbContext object.
+        /// </summary>
+        private static void JoinBattleAndSamurai()
+        {
+            //If SamuraiId and BattleId is known then we can directly add them.
+            var sbJoin = new SamuraiBattle { SamuraiId = 1, BattleId = 3 };
+
+            /*We don't have SamuraiBattle dbset but that is well connected by FK. So _context will figureout 
+            how to save that.*/
+
+            _context.Add(sbJoin);
+            _context.SaveChanges();
+        }
+
+        private static void PrePopulateSamuraisAndBattles()
+        {
+            _context.AddRange(
+             new Samurai { Name = "Kikuchiyo" },
+             new Samurai { Name = "Kambei Shimada" },
+             new Samurai { Name = "Shichirōji " },
+             new Samurai { Name = "Katsushirō Okamoto" },
+             new Samurai { Name = "Heihachi Hayashida" },
+             new Samurai { Name = "Kyūzō" },
+             new Samurai { Name = "Gorōbei Katayama" }
+           );
+
+            _context.Battles.AddRange(
+             new Battle { Name = "Battle of Okehazama", StartDate = new DateTime(1560, 05, 01), EndDate = new DateTime(1560, 06, 15) },
+             new Battle { Name = "Battle of Shiroyama", StartDate = new DateTime(1877, 9, 24), EndDate = new DateTime(1877, 9, 24) },
+             new Battle { Name = "Siege of Osaka", StartDate = new DateTime(1614, 1, 1), EndDate = new DateTime(1615, 12, 31) },
+             new Battle { Name = "Boshin War", StartDate = new DateTime(1868, 1, 1), EndDate = new DateTime(1869, 1, 1) }
+           );
+            _context.SaveChanges();
         }
 
         /// <summary>
