@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SamuraiApp.Data;
 using System;
 
+//Its important as next time when we run migration, models will be compared with the existing snapshot 
+//and based on that new migration will be created.
 namespace SamuraiApp.Data.Migrations
 {
     [DbContext(typeof(SamuraiContext))]
